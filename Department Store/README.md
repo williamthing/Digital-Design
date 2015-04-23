@@ -14,5 +14,3 @@ Christmas Ornament: [0 1 1 Yes No],
 Business Suit: [1 0 0 No Yes],
 Winter Coat: [1 0 1 Yes Yes],
 Socks: [1 1 0 Yes No]
-
-* need to fix testbench portion of the code, everything else works perfectly.
