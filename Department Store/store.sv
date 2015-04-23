@@ -3,7 +3,7 @@
 // LAB 3
 
 // Top-level module that defines the I/Os for the DE-1 SoC board
-module Lab3 (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW);
+module store (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, LEDR, SW);
 output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 output [1:0] LEDR;
 input [3:0] KEY;	// Turns off Keys
@@ -32,12 +32,12 @@ or(LEDR[1], SW[1], X);
 endmodule
 
 // Test Bench
-module Lab3_testbench();
+module store_testbench();
 wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 wire [1:0] LEDR;
 reg [3:0] KEY;
 reg [9:0] SW;
-Lab3 dut (.HEX0, .HEX1, .HEX2, .HEX3, .HEX4, .HEX5, .KEY, .LEDR,
+store dut (.HEX0, .HEX1, .HEX2, .HEX3, .HEX4, .HEX5, .KEY, .LEDR,
 .SW);
 // Try all combinations of inputs.
 integer i;
