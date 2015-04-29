@@ -1,8 +1,8 @@
 # Department Store
 
-* Department Store Theft-Detector:
+Department Store Theft-Detector:
 
-In order to speed up processing of returns at Nordstrom’s, the customer service department
+*In order to speed up processing of returns at Nordstrom’s, the customer service department
 wants an electronic detector device. Its goal is to both determine those items that have been
 discounted, so that the proper rebate can be calculated, as well as help find shoplifters returning
 their ill-gotten gains.
@@ -17,4 +17,4 @@ Business Suit: [1 0 0 No Yes],
 Winter Coat: [1 0 1 Yes Yes],
 Socks: [1 1 0 Yes No]
 
-* Department Store Items:
+Department Store Items:
