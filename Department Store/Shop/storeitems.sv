@@ -162,8 +162,8 @@ initial begin
 // set these switches to not being used
 
 
-for(i = 0; i < 256; i++) begin
-SW[7:0] = i; #10;
+for(i = 0; i < 16; i++) begin
+SW[3:0] = i; #10;
 end
 end
 endmodule
