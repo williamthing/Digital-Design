@@ -54,7 +54,7 @@ input L, R, NL, NR;
 output reg lightOn;
 wire [1:0] PS;
 reg [1:0] NS;
-parameter off = 0, on = 1;
+parameter off = 1'b0, on = 1'b1;
 
 // while
 always @(*)
@@ -66,20 +66,18 @@ case(PS)
 			else if (NS & L) NS = off;
 			else NS = on;
 		
-	
-	
 endcase
 
 always @(*)
 case(PS)
-	off: lightOn = 0;
-	on: lightOn = 1;
+	off: lightOn = off;
+	on: lightOn = on;
 endcase
 
 // reset
 always @(posedge Clock)
 	if (Reset)
-		PS <= 1; // reset should turn the center light on
+		PS <= on; // reset should turn the center light on
 	else
 		PS <= NS;
 
@@ -94,7 +92,7 @@ input Clock, Reset;
 input L, R, NL, NR;
 wire [1:0] PS;
 reg [1:0] NS;
-parameter off = 0, on = 1;
+parameter off = 1'b0, on = 1'b1;
 // when lightOn is true, the normal light should be on.
 output reg lightOn;
 
@@ -119,7 +117,7 @@ endcase
 // reset
 always @(posedge Clock)
 	if (Reset)
-		PS <= 0; // normal light should be turned off when reset
+		PS <= off; // normal light should be turned off when reset
 	else
 		PS <= NS;
 
@@ -170,7 +168,7 @@ module Hex(Clock, Reset, L, R, NL, NR, lightOn);
 
 endmodule
 
-
+/*
 module Lab3_testbench();
 reg clk, reset;
 reg [1:0]SW;
@@ -208,7 +206,7 @@ initial begin
 $stop; // End the simulation.
 end
 endmodule
-	
+*/
  
  
  
