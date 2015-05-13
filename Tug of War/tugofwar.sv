@@ -26,3 +26,18 @@ module button(Clock, pressed, set);
 	
 	assign set = (~PS & NS);
 endmodule
+
+// Hex Display
+module Hex(Clock, Reset, L, R, NL, NR, lightOn);
+	input Clock, Reset;
+	input L, R, NL, NR;
+	reg [6:0] PS, NS;
+	output reg[6:0] lightOn;
+	parameter[6:0] player1win = 7'b0100100, player2win = 7'1111001, lightOff = 7'1111111;
+	
+	// while
+	always @(*)
+	case(PS)
+	
+
+endmodule
