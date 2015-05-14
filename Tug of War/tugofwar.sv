@@ -1,29 +1,31 @@
 // William Thing
 
-module Lab3 (CLOCK_50, SW, LEDR, KEY, HEX); 
+module Lab3 (CLOCK_50, SW, LEDR, KEY, HEX0); 
 	input CLOCK_50; 
 	input [9:0] SW;
 	input [3:0] KEY;
-	output reg [9:1] LEDR;
-	output reg [6:0] HEX[0];
-	parameter whichClock = 23; 	
-
-	wire right,left,H1,H2;
+	output reg [9:0] LEDR;
+	output reg [6:0] HEX0;	
+	assign LEDR[0] = 1'b0;
+	wire right,left;
+	parameter whichClock = 23;
 	
 	button b1 (.Clock(CLOCK_50) , .pressed(~KEY[3]), .set(left));
 	button b2 (.Clock(CLOCK_50) , .pressed(~KEY[0]), .set(right));
 	
 	
-	Hex display (.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[9]), .NR(LEDR[1]), .lightOn(HEX0));
-	normalLight nl1(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[2]),.NR(1'b0),	 .lightOn(LEDR[1]));
-	normalLight nl2(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[3]),.NR(LEDR[1]),.lightOn(LEDR[2]));
-	normalLight nl3(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[4]),.NR(LEDR[2]),.lightOn(LEDR[3]));
-	normalLight nl4(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[5]),.NR(LEDR[3]),.lightOn(LEDR[4]));
-	centerLight nl5(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[6]),.NR(LEDR[4]),.lightOn(LEDR[5]));
-	normalLight nl6(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[7]),.NR(LEDR[5]),.lightOn(LEDR[6]));
-	normalLight nl7(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[8]),.NR(LEDR[6]),.lightOn(LEDR[7]));
-	normalLight nl8(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(LEDR[9]),.NR(LEDR[7]),.lightOn(LEDR[8]));
-	normalLight nl9(.Clock(CLOCK_50), .Reset(SW[9]),.L(left),.R(right), .NL(1'b0),   .NR(LEDR[8]),.lightOn(LEDR[9]));
+	display disp (.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[9]), .NR(LEDR[1]), .lightOn(HEX0));
+	
+	
+	normalLight n1(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[2]), .NR(1'b0), .lightOn(LEDR[1]));
+	normalLight n2(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[3]), .NR(LEDR[1]), .lightOn(LEDR[2]));
+	normalLight n3(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[4]), .NR(LEDR[2]), .lightOn(LEDR[3]));
+	normalLight n4(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[5]), .NR(LEDR[3]), .lightOn(LEDR[4]));
+	centerLight c1(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[6]), .NR(LEDR[4]), .lightOn(LEDR[5]));
+	normalLight n6(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[7]), .NR(LEDR[5]), .lightOn(LEDR[6]));
+	normalLight n7(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[8]), .NR(LEDR[6]), .lightOn(LEDR[7]));
+	normalLight n8(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[9]), .NR(LEDR[7]), .lightOn(LEDR[8]));
+	normalLight n9(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(1'b0),    .NR(LEDR[8]), .lightOn(LEDR[9]));
 	
 	   
 endmodule 
@@ -52,8 +54,8 @@ input Clock, Reset;
 input L, R, NL, NR;
 // when lightOn is true, the center light should be on.
 output reg lightOn;
-wire [1:0] PS;
-reg [1:0] NS;
+reg PS;
+reg NS;
 parameter off = 1'b0, on = 1'b1;
 
 // while
@@ -62,16 +64,16 @@ case(PS)
 	off:	if (NL & R) NS = on;           
 			else if (NR & L) NS = on;
 			else NS = off;
-	on:	if (NS & R) NS = off;
-			else if (NS & L) NS = off;
+	on:	if (R ^ L) NS = off;
 			else NS = on;
-		
+	default: NS = 1'bx;	
 endcase
 
 always @(*)
 case(PS)
 	off: lightOn = off;
 	on: lightOn = on;
+	default: lightOn = 1'bx;	
 endcase
 
 // reset
@@ -90,28 +92,40 @@ input Clock, Reset;
 // is pressed, NL is true when the light on the left is on, and NR
 // is true when the light on the right is on.
 input L, R, NL, NR;
-wire [1:0] PS;
-reg [1:0] NS;
+reg PS;
+reg NS;
 parameter off = 1'b0, on = 1'b1;
 // when lightOn is true, the normal light should be on.
 output reg lightOn;
 
+// while
+/*
+always @(*)
+case(PS)
+	off:	if ((NL & R) | (NR & L)) NS = on;           
+			else NS = off;
+	on:	if (~R & ~L) NS = on;
+			else NS = off;
+	default: NS = 1'bx;	
+endcase
+*/
 // while
 always @(*)
 case(PS)
 	off:	if (NL & R) NS = on;           
 			else if (NR & L) NS = on;
 			else NS = off;
-	on:	if (NS & R) NS = off;
-			else if (NS & L) NS = off;
+	on:	if (R ^ L) NS = off;
 			else NS = on;
-	
+	default: NS = 1'bx;	
 endcase
+
 
 always @(*)
 case(PS)
 	off: lightOn = 0;
 	on: lightOn = 1;
+	default: NS = 1'bx;	
 endcase
 
 // reset
@@ -122,6 +136,8 @@ always @(posedge Clock)
 		PS <= NS;
 
 endmodule
+
+
 
 // User Input
 module button(Clock, pressed, set);
@@ -140,7 +156,7 @@ module button(Clock, pressed, set);
 endmodule
 
 
-module Hex(Clock, Reset, L, R, NL, NR, lightOn);
+module display(Clock, Reset, L, R, NL, NR, lightOn);
 	input Clock, Reset;
 	input L, R, NL, NR;
 	reg [6:0] PS, NS;
@@ -155,6 +171,7 @@ module Hex(Clock, Reset, L, R, NL, NR, lightOn);
 		lightOff:	if (NL & L) NS = player1win;			// most left and input left = p1win
 						else if (NR & R) NS = player2win;	// most right and input right = p2win
 						else NS = lightOff;						// else
+	   default: NS = 7'bxxxxxxx;
 	endcase
 	
 	assign lightOn = PS;
