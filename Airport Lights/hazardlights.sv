@@ -1,6 +1,6 @@
 // William Thing
 
-module Lab3 (CLOCK_50,SW, LEDR,KEY); 
+module hazardlights (CLOCK_50,SW, LEDR,KEY); 
 	input CLOCK_50; 
 	input [1:0] SW;
 	input [1:0] KEY;
@@ -86,7 +86,7 @@ module D_FF (Q, d, reset, clk);
 endmodule
 
 // 
-module Lab3_testbench();
+module hazardlights_testbench();
 reg clk, reset;
 reg [1:0]SW;
 wire [2:0]out;
