@@ -202,8 +202,9 @@ module threeBitAdder_testbench();
 	end
 endmodule
 
+
 // 10-bit adder
-module threeBitAdder(A, B, Out);
+module tenBitAdder(A, B, Out);
 	output [9:0] Out;
 	input [9:0] A, B;
 	wire [9:0] C;
@@ -218,43 +219,64 @@ module threeBitAdder(A, B, Out);
 	adder a7(A[7], B[7], C[6], C[7], Out[7]);
 	adder a8(A[8], B[8], C[7], C[8], Out[8]);
 	adder a9(A[9], B[9], C[8], C[9], Out[9]);
-
-
 endmodule
 
 
-
-
-module random(clk, reset, out);
-	input clk, reset;
-	output [8:0] out;
+module tenBitAdder_testbench();
+	wire [9:0] Out;
+	reg [9:0] A, B;
 	
-	reg [8:0] ps, ns;
-	reg w;
+	tenBitAdder dut(A, B, Out);
+	
+	parameter d = 20;
+	
+	initial begin
+		A = 0;
+		B = 0;
+	end
+	
+	reg [20:0] i;
+	initial begin
+	#d; 
+		for(i = 0; ~i[20]; i = i + 1) begin
+			{A, B} = i[19:0];
+			#d;
+		end
+	end
+endmodule
+
+
+// Linear feedback shift register; random gen
+module LFSR(Clk, Reset, Out);
+	input Clk, Reset;
+	output [8:0] Out;
+	reg [8:0] PS, NS;
+	reg T;
 	
 	always @(*) begin
-		w = ~(ps[4] ^ ps[8]);
-		ns = {ps[7:0], w};
+		T = ~(PS[4] ^ PS[8]);
+		NS = {PS[7:0], T};
 	end
 		
-	assign out = ps;
+	assign Out = PS;
 	
-	always @(posedge clk)
-		if (reset)
-			ps <= 9'b000000000;
+	always @(posedge Clk)
+		if (Reset)
+			PS <= 9'b000000000;
 		else 
-			ps <= ns;
+			PS <= NS;
 
 endmodule
 
-module random_testbench();
-	reg reset, clk;
-	wire [8:0] out;
+
+module LFSR_testbench();
+	reg clk, Reset;
+	wire [8:0] Out;
+
+	LFSR dut(clk, Reset, Out);
 	
-	random dut(clk, reset, out);
-	
-	parameter CLOCK_PERIOD=100; 
-	initial clk=1; 
+	parameter CLOCK_PERIOD = 100; 
+	initial clk = 1; 
 	always begin 
 		#(CLOCK_PERIOD/2); 
 		clk = ~clk; 
@@ -262,8 +284,8 @@ module random_testbench();
 	
 	initial begin 
 						@(posedge clk);
-		reset <= 1; @(posedge clk);	
-		reset <= 0; @(posedge clk); 
+		Reset <= 1; @(posedge clk);	
+		Reset <= 0; @(posedge clk); 
 						@(posedge clk); 
 						@(posedge clk);
 						@(posedge clk);
@@ -277,12 +299,12 @@ module random_testbench();
 						@(posedge clk);
 						@(posedge clk);
 						@(posedge clk);
-		reset <= 1; @(posedge clk);
-		reset <= 0; @(posedge clk);
+		Reset <= 1; @(posedge clk);
+		Reset <= 0; @(posedge clk);
 						@(posedge clk);
 						
 						
-		$stop; // End the simulation. 
+		$stop; 
 	end
 	
 endmodule
@@ -329,15 +351,15 @@ module hexdisplay(Clock, Reset, L, R, NL, NR, lightOn);
 	input L, R, NL, NR;
 	reg [6:0] PS, NS;
 	output reg[6:0] lightOn;
-	parameter[6:0] player1win = 7'b0100100, player2win = 7'b1111001, lightOff = 7'b1111111;
+	parameter[6:0] player2win = 7'b0100100, player1win = 7'b1111001, lightOff = 7'b1111111;
 	
 	// while
 	always @(*)
 	case(PS)
 		player1win: NS = player1win;
 		player2win: NS = player2win;
-		lightOff:	if (NL & L) NS = player1win;			// most left and input left = p1win
-						else if (NR & R) NS = player2win;	// most right and input right = p2win
+		lightOff:	if (NL & L) NS = player2win;			// most left and input left = p2win
+						else if (NR & R) NS = player1win;	// most right and input right = p1win
 						else NS = lightOff;						// else
 	   default: NS = 7'bxxxxxxx;
 	endcase
@@ -354,7 +376,7 @@ module hexdisplay(Clock, Reset, L, R, NL, NR, lightOn);
 endmodule
 
 
-module Lab3_testbench(); //CLOCK_50, KEY, SW, LEDR, HEX0
+module Lab3_testbench();
 	reg CLOCK_50;
 	reg [9:0] SW;
 	reg [3:0] KEY;
@@ -516,7 +538,8 @@ module centerLight_testbench();
 			#(CLOCK_PERIOD/2);
 		Clk = ~Clk;
 	end
-	// Set up the inputs to the design. Each line is a clock cycle.
+
+	
 	initial begin
 
 		Reset <= 1; @(posedge Clk);
