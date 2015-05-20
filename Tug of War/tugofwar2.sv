@@ -2,15 +2,15 @@
 // Lab 7
 
 
-module Lab3 (CLOCK_50, SW, LEDR, KEY, HEX0); 
+module Lab3 (CLOCK_50, SW, LEDR, KEY, HEX0, HEX5); 
 	input CLOCK_50; 
 	input [9:0] SW;
 	input [3:0] KEY;
 	output reg [9:0] LEDR;
-	output reg [6:0] HEX0;	
+	output reg [6:0] HEX0, HEX5;	
 	assign LEDR[0] = 1'b0;
-	wire right,left;
-	
+	wire right,left, winR, winL;
+	wire [2:0] counterL, counterR;
 	
 	// buttons for the two different players 
 	button player2 (.Clock(CLOCK_50) , .Reset(SW[9]), .pressed(~KEY[3]), .set(left));
@@ -22,16 +22,26 @@ module Lab3 (CLOCK_50, SW, LEDR, KEY, HEX0);
 	normalLight n2(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[3]), .NR(LEDR[1]), .lightOn(LEDR[2]));
 	normalLight n3(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[4]), .NR(LEDR[2]), .lightOn(LEDR[3]));
 	normalLight n4(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[5]), .NR(LEDR[3]), .lightOn(LEDR[4]));
-	centerLight c1(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[6]), .NR(LEDR[4]), .lightOn(LEDR[5]));
+	
+	// center light
+	centerLight c1(.Clock(CLOCK_50), .Reset(SW[9] | winL | winR), .L(left), .R(right), .NL(LEDR[6]), .NR(LEDR[4]), .lightOn(LEDR[5]));
+	
+	// for readability
 	normalLight n6(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[7]), .NR(LEDR[5]), .lightOn(LEDR[6]));
 	normalLight n7(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[8]), .NR(LEDR[6]), .lightOn(LEDR[7]));
 	normalLight n8(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[9]), .NR(LEDR[7]), .lightOn(LEDR[8]));
 	normalLight n9(.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(1'b0),    .NR(LEDR[8]), .lightOn(LEDR[9]));
 	
+	// detects if the computer or the player wins
+	winnerDetect win (LEDR[9], LEDR[1], left, right, winL, winR);
+	
+	counter leftCount (CLOCK_50, SW[9], winL, counterL);
+	counter rightCount (CLOCK_50, SW[9], winR, counterR);
 	
 	// Hexdisplay for winner for Tug of War Game
-	hexdisplay disp (.Clock(CLOCK_50), .Reset(SW[9]), .L(left), .R(right), .NL(LEDR[9]), .NR(LEDR[1]), .lightOn(HEX0));
-	   
+	hexdisplay disp (CLOCK_50, SW[9], counterL, counterR, HEX5, HEX0);
+	
+	
 endmodule 
  
 // divided_clocks[0] = 25MHz, [1] = 12.5Mhz, ... [23] = 3Hz, [24] = 1.5Hz, [25] = 0.75Hz, ... 
@@ -48,6 +58,7 @@ module clock_divider (clock, divided_clocks);
 		divided_clocks = divided_clocks +1;
 endmodule
 */ 
+
 
 // centerlight works!!
 module centerLight (Clock, Reset, L, R, NL, NR, lightOn);
@@ -91,43 +102,43 @@ endmodule
 
 
 module normalLight (Clock, Reset, L, R, NL, NR, lightOn);
-input Clock, Reset;
-// L is true when left key is pressed, R is true when the right key
-// is pressed, NL is true when the light on the left is on, and NR
-// is true when the light on the right is on.
-input L, R, NL, NR;
-reg PS;
-reg NS;
-parameter off = 1'b0, on = 1'b1;
-// when lightOn is true, the normal light should be on.
-output reg lightOn;
+	input Clock, Reset;
+	// L is true when left key is pressed, R is true when the right key
+	// is pressed, NL is true when the light on the left is on, and NR
+	// is true when the light on the right is on.
+	input L, R, NL, NR;
+	reg PS;
+	reg NS;
+	parameter off = 1'b0, on = 1'b1;
+	// when lightOn is true, the normal light should be on.
+	output reg lightOn;
 
 
-// while
-always @(*)
-case(PS)
-	off:	if (NL & R) NS = on;           
-			else if (NR & L) NS = on;
-			else NS = off;
-	on:	if (R ^ L) NS = off;
-			else NS = on;
-	default: NS = 1'bx;	
-endcase
+	// while
+	always @(*)
+	case(PS)
+		off:	if (NL & R) NS = on;           
+				else if (NR & L) NS = on;
+				else NS = off;
+		on:	if (R ^ L) NS = off;
+				else NS = on;
+		default: NS = 1'bx;	
+	endcase
 
 
-always @(*)
-case(PS)
-	off: lightOn = 0;
-	on: lightOn = 1;
-	default: NS = 1'bx;	
-endcase
+	always @(*)
+	case(PS)
+		off: lightOn = 0;
+		on: lightOn = 1;
+		default: NS = 1'bx;	
+	endcase
 
-// reset
-always @(posedge Clock)
-	if (Reset)
-		PS <= off; // normal light should be turned off when reset
-	else
-		PS <= NS;
+	// reset
+	always @(posedge Clock)
+		if (Reset)
+			PS <= off; // normal light should be turned off when reset
+		else
+			PS <= NS;
 
 endmodule
 
@@ -178,7 +189,7 @@ module threeBitAdder(A, B, Out);
 
 endmodule
 
-
+// 3-bit adder test bench
 module threeBitAdder_testbench();
 	wire [2:0] Out;
 	reg [2:0] A, B;
@@ -219,9 +230,12 @@ module tenBitAdder(A, B, Out);
 	adder a7(A[7], B[7], C[6], C[7], Out[7]);
 	adder a8(A[8], B[8], C[7], C[8], Out[8]);
 	adder a9(A[9], B[9], C[8], C[9], Out[9]);
+	
+	
+	
 endmodule
 
-
+// 10-bit adder test bench
 module tenBitAdder_testbench();
 	wire [9:0] Out;
 	reg [9:0] A, B;
@@ -268,14 +282,15 @@ module LFSR(Clk, Reset, Out);
 
 endmodule
 
-
+//
 module LFSR_testbench();
 	reg clk, Reset;
 	wire [8:0] Out;
 
 	LFSR dut(clk, Reset, Out);
 	
-	parameter CLOCK_PERIOD = 100; 
+	parameter CLOCK_PERIOD = 100;
+	
 	initial clk = 1; 
 	always begin 
 		#(CLOCK_PERIOD/2); 
@@ -309,9 +324,15 @@ module LFSR_testbench();
 	
 endmodule
 
+module winnerDetect (leftMostLight, rightMostLight, left, right, winL, winR);
+	input leftMostLight, rightMostLight, left, right;
+	output winL, winR;
+	
+	assign winL = leftMostLight & left & ~right;
+	assign winR = rightMostLight & right & ~left;
+endmodule 
 
-
-// User Input for bottons
+// User Input for buttons
 module button(Clock, Reset, pressed, set);
 	input Clock, Reset;
 	input pressed;
@@ -345,7 +366,37 @@ module button(Clock, Reset, pressed, set);
 endmodule
 
 
+// counter uses signal to increment score for hexdisplay
+module counter(Clock, Reset, Signal, out);
+	input Clock, Reset;
+	input Signal;
+	reg [2:0] PS, NS;
+	output [2:0] out;
+	
+	wire [2:0] sum;
+	
+	threeBitAdder adder(PS, 3'b001, sum);
+	
+	// state logic
+	always @(*) begin
+		if (Reset) begin
+			NS <= 3'b000;
+		end
+		else if (Signal)
+			NS = sum;
+		else
+			NS = PS;
+	end
+	
+	// output logic
+	always @(posedge Clock) begin
+		out = PS;
+		PS <= NS;
+	end
+endmodule
 
+/*
+// working hexdisplay for l6
 module hexdisplay(Clock, Reset, L, R, NL, NR, lightOn);
 	input Clock, Reset;
 	input L, R, NL, NR;
@@ -358,8 +409,8 @@ module hexdisplay(Clock, Reset, L, R, NL, NR, lightOn);
 	case(PS)
 		player1win: NS = player1win;
 		player2win: NS = player2win;
-		lightOff:	if (NL & L) NS = player2win;			// most left and input left = p2win
-						else if (NR & R) NS = player1win;	// most right and input right = p1win
+		lightOff:	if (NL & L & ~R) NS = player2win;			// most left and input left = p2win
+						else if (NR & R & ~L) NS = player1win;	// most right and input right = p1win
 						else NS = lightOff;						// else
 	   default: NS = 7'bxxxxxxx;
 	endcase
@@ -373,6 +424,45 @@ module hexdisplay(Clock, Reset, L, R, NL, NR, lightOn);
 			PS <= NS;
 	
 
+endmodule
+*/
+
+// new hexdisplay 
+// clock, reset (not sure if needed), counter 1 for leftmost hex, counter 2 for right most hex,
+// lightOn(1 & 2) is what to display
+module hexdisplay(Clock, Reset, counter1, counter2, lightOn1, lightOn2);
+	input Clock, Reset;
+	input [2:0] counter1, counter2;
+	reg [6:0] PS, NS;
+	output reg[6:0] lightOn1, lightOn2;
+	
+	parameter [6:0] zero = 7'b1000000, 	one = 7'b1111001,		two = 7'b0100100,
+						 three = 7'b0110000, four = 7'b0011001, 	five = 7'b0010010,
+						 six = 7'b0000010, 	seven = 7'b1111000;
+	
+	always @(*) begin
+		case (counter1)
+			3'b000:	lightOn1 = zero;
+			3'b001:	lightOn1 = one;
+			3'b010:	lightOn1 = two;
+			3'b011:	lightOn1 = three;
+			3'b100:	lightOn1 = four;
+			3'b101:	lightOn1 = five;
+			3'b110:	lightOn1 = six;
+			3'b111:	lightOn1 = seven;
+		endcase
+		
+		case (counter2)
+			3'b000:	lightOn2 = zero;
+			3'b001:	lightOn2 = one;
+			3'b010:	lightOn2 = two;
+			3'b011:	lightOn2 = three;
+			3'b100:	lightOn2 = four;
+			3'b101:	lightOn2 = five;
+			3'b110:	lightOn2 = six;
+			3'b111:	lightOn2 = seven;
+		endcase
+	end
 endmodule
 
 
