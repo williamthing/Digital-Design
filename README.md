@@ -1,6 +1,6 @@
 # Digital-Logic
 
-List of projects completed by in my Digital Circuits and Design course written in System Verilog:
+List of projects completed in my Digital Circuits and Design course written in System Verilog:
 
 *	encoders, decoders, mux
 
@@ -8,6 +8,6 @@ List of projects completed by in my Digital Circuits and Design course written i
 
 * 	Hazard light code for Airport run way
 
-*	tug of war: 2 player feature (1 v.s. 1), and human v.s. computer option
+*	tug of war: 2 player feature (1 v.s. 1), and human v.s. AI option
 
-*	Dance Dance Revolution
+*	Dance Dance Revolution (final project)
