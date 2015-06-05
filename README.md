@@ -1,6 +1,6 @@
 # Digital-Logic
 
-List of projects completed by in my Digital Circuits and Design course:
+List of projects completed by in my Digital Circuits and Design course written in System Verilog:
 
 *	encoders, decoders, mux
 
