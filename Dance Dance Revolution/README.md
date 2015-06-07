@@ -4,7 +4,7 @@ Final project for Digital circuits course by William Thing
 
 demo video can be found: [NEED TO UPLOAD VIDEO AND INSERT LINK]
 
-Description: DDR implementation programmed on hardware (FPGA DE1-SOC) allows the player to hit correct keys (matching the column of lights with corresponding key) when the light on the LED matrix hits the 2nd top row (which will turn red) which will recieve 2 points, 1st row (orange light) will recieve 1 point, and any other spot when player presses any key will result in -2 point. Score is displayed on HEX display. Hit reset for game to reset/start a new game. Enjoy!!
+Description: DDR implementation programmed on hardware (FPGA DE1-SOC) allows the player to hit correct keys (matching the column of lights with corresponding key) when the light on the LED matrix hits the 2nd top row (which will turn red) will recieve 2 points, 1st row (orange light) will recieve 1 point, and any other spot when player presses any key will result in -2 point. Score is displayed on HEX display. Hit reset for game to reset/start a new game. Enjoy!!
 
 
 Controls:
