@@ -1,7 +1,7 @@
 // William Thing
 // Final Project
 
-module Lab3(CLOCK_50, SW, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, GPIO_0); 
+module DDR(CLOCK_50, SW, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, GPIO_0); 
 	input CLOCK_50; 
 	input [9:0] SW;
 	input [3:0] KEY;
@@ -330,7 +330,9 @@ module LFSR_testbench();
 	end
 endmodule
  
-module Lab3_testbench();
+// DDR testbench, odd remarks when compiling, giving errors in button and
+// GPIO 
+module DDR_testbench();
 	reg CLOCK_50; 
 	reg [9:0] SW;
    reg [3:0] KEY;
