@@ -1,1 +1,1 @@
-#Hazard Lights logic for Airplanes strip
+#Hazard Lights code for Airport Systems
