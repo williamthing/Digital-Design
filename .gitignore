@@ -1,0 +1,5 @@
+# to remove current sv files
+# then will git rm --cached
+# then remove gitignore
+
+.*sv
